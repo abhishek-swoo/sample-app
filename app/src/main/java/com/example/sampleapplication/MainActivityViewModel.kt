@@ -1,6 +1,5 @@
 package com.example.sampleapplication
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,11 +18,10 @@ class MainActivityViewModel : ViewModel() {
     fun getData() {
         aRetrofitServices.getDataList().enqueue(object : retrofit2.Callback<ListDataNwModel> {
             override fun onFailure(call: Call<ListDataNwModel>, t: Throwable) {
-                Log.d("RetrofitCall", "failed: " + t.message + " " + t.stackTrace)
+                _dataListResultUIModel.postValue(null)
             }
 
             override fun onResponse(call: Call<ListDataNwModel>, response: Response<ListDataNwModel>) {
-                Log.d("RetrofitCall", "success: " + response.body())
                 transformToUIModel(response.body())
             }
         })

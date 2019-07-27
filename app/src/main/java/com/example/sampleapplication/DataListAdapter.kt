@@ -56,8 +56,11 @@ class DataListViewHolder(
     fun bindTo(dataUIPos: ListDataUIModel?) {
         dataUIPos?.text.let {
             binding.textData.text = it
-            Glide.with(binding.textData.context).load("https://images.unsplash.com/photo-1523676060187-f55189a71f5e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80").centerCrop().diskCacheStrategy(
-                DiskCacheStrategy.ALL).into(binding.dataIv)
+            Glide.with(binding.textData.context).load(dataUIPos?.url)
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.DATA)
+                .onlyRetrieveFromCache(true)
+                .into(binding.dataIv)
 
         }
     }
