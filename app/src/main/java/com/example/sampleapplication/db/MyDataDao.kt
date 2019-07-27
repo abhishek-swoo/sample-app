@@ -17,4 +17,7 @@ interface MyDataDao {
 
     @Delete
     fun delete(data: MyData)
+
+    @Query("Delete FROM `my-db`")
+    fun deleteAll()
 }
