@@ -1,62 +1,20 @@
 package com.example.sampleapplication
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.sampleapplication.databinding.ActivityMainBinding
-import com.example.sampleapplication.db.AppDatabase
-import com.example.sampleapplication.db.MyData
-import kotlinx.coroutines.experimental.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: MainActivityViewModel
-    private lateinit var binding: ActivityMainBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        initUI()
-    }
+        setContentView(R.layout.main_activity)
 
-    private fun initUI() {
-        val dataDao = AppDatabase.get(applicationContext).myDataDao()
-        viewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
-        viewModel.dataListResultUIModel.observe(this, Observer { listData ->
-
-            binding.listRv.layoutManager = LinearLayoutManager(this) as RecyclerView.LayoutManager?
-            binding.listRv.adapter = DataListAdapter()
-            var adapter = binding.listRv.adapter as DataListAdapter
-            listData.let {
-                adapter.updateData(listData)
-            }
-
-            launch {
-                dataDao.insertAll(transformToDBData(listData))
-                Log.d("MainActivityTest", "Entry: " + dataDao.findData(2))
-            }
-        })
-
-        viewModel.getData()
-
-    }
-
-    fun transformToDBData(data: List<ListDataUIModel>): List<MyData> {
-        var myData = ArrayList<MyData>()
-        data.forEach {
-            myData.add(
-                MyData(
-                    uId = 0,
-                    text = it.text,
-                    data = it.url
-                )
-            )
-        }
-        return myData
+        val fragment =
+            supportFragmentManager.findFragmentByTag(MainFragment::class.java.simpleName)
+                ?: MainFragment.newInstance()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction
+            .replace(R.id.main_container, fragment, MainFragment::class.java.simpleName).commitAllowingStateLoss()
     }
 }
