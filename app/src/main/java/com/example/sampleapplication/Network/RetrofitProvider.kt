@@ -16,7 +16,7 @@ class RetrofitProvider private constructor(){
     }
 
     companion object {
-        val BASE_URL = "https://reqres.in"
+        val BASE_URL = "https://www.googleapis.com"
         val instance: RetrofitProvider by lazy { Holder.INSTANCE }
         val defaultRetrofitClient: Retrofit = createRetrofitClient()
 

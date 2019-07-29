@@ -1,5 +1,6 @@
 package com.example.sampleapplication
 
+import com.example.sampleapplication.ViewModel.MainActivityViewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,12 +12,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sampleapplication.ClickListeners.ImageClickListener
 import com.example.sampleapplication.databinding.FragmentMainBinding
-import com.example.sampleapplication.db.AppDatabase
-import com.example.sampleapplication.db.MyData
-import kotlinx.coroutines.experimental.launch
 
-class MainFragment: Fragment() {
+class MainFragment: Fragment(), ImageClickListener {
+
 
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var binding: FragmentMainBinding
@@ -28,42 +28,37 @@ class MainFragment: Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val dataDao = AppDatabase.get(context!!.applicationContext).myDataDao()
+
+        initUI()
+    }
+
+    private fun initUI() {
+
         viewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
+        val imageList = arguments!!.getStringArrayList(Constants.DATA)
 
-        viewModel.dataListResultUIModel.observe(this, Observer { listData ->
 
-            binding.listRv.layoutManager = LinearLayoutManager(context) as RecyclerView.LayoutManager?
-            binding.listRv.adapter = DataListAdapter()
-            val adapter = binding.listRv.adapter as DataListAdapter
-            listData.let {
-                adapter.updateData(listData)
-            }
-
-            launch {
-                dataDao.insertAll(transformToDBData(listData))
-                Log.d("MainActivityTest", "Entry: " + dataDao.findData(2))
-            }
-        })
-
-        viewModel.getData()
+        binding.listRv.layoutManager = LinearLayoutManager(context) as RecyclerView.LayoutManager?
+        binding.listRv.adapter = DataListAdapter(this)
+        val adapter = binding.listRv.adapter as DataListAdapter
+        adapter.updateData(imageList)
     }
 
-    fun transformToDBData(data: List<ListDataUIModel>): List<MyData> {
-        val myData = ArrayList<MyData>()
-        data.forEach {
-            myData.add(
-                MyData(
-                    uId = 0,
-                    text = it.text,
-                    data = it.url
-                )
-            )
-        }
-        return myData
+    override fun onImageClickListener(item: String?) {
+        val fragment = ImageInfoFragment.newInstance(item)
+
+        activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_container, fragment, ImageInfoFragment::class.java.simpleName)?.commit()
     }
+
 
     companion object {
-        fun newInstance() = MainFragment()
+        fun newInstance(imageList: ArrayList<String>?): MainFragment {
+            val bundle = Bundle().apply {
+                putStringArrayList(Constants.DATA, imageList)
+            }
+            val fragment = MainFragment()
+            fragment.arguments = bundle
+            return fragment
+        }
     }
 }

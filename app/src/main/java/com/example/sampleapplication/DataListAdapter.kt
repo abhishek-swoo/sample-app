@@ -1,17 +1,19 @@
 package com.example.sampleapplication
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.sampleapplication.ClickListeners.ImageClickListener
 import com.example.sampleapplication.databinding.ItemDataListBinding
 
-class DataListAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class DataListAdapter(val listener: ImageClickListener?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
-    var dataListUI: List<ListDataUIModel>? = null
+    var dataListUI: ArrayList<String>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = DataBindingUtil.inflate<ItemDataListBinding>(
@@ -24,13 +26,13 @@ class DataListAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return DataListViewHolder(binding)
     }
 
-    fun updateData(listDatumUIS: List<ListDataUIModel>) {
-        dataListUI = listDatumUIS
+    fun updateData(listData: ArrayList<String>?) {
+        dataListUI = listData
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
-        if(dataListUI == null) {
+        if (dataListUI == null) {
             return 0
         } else {
             return dataListUI!!.size
@@ -40,9 +42,9 @@ class DataListAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val dataPos = dataListUI?.get(position)
 
-        when(holder) {
+        when (holder) {
             is DataListViewHolder -> {
-                holder.bindTo(dataPos)
+                holder.bindTo(dataPos, clickListener = listener)
             }
         }
     }
@@ -53,12 +55,13 @@ class DataListViewHolder(
     val binding: ItemDataListBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bindTo(dataUIPos: ListDataUIModel?) {
-        dataUIPos?.text.let {
-            binding.textData.text = it
-            Glide.with(binding.textData.context).load("https://images.unsplash.com/photo-1523676060187-f55189a71f5e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80").centerCrop().diskCacheStrategy(
-                DiskCacheStrategy.ALL).into(binding.dataIv)
-
+    fun bindTo(dataUIPos: String?, clickListener: ImageClickListener?) {
+        dataUIPos?.let {
+            Glide.with(binding.dataIv.context).load(dataUIPos).centerCrop().into(binding.dataIv)
+        }
+        Log.d("adapterImage", "url: " + dataUIPos)
+        binding.dataIv.setOnClickListener {
+            clickListener?.onImageClickListener(dataUIPos)
         }
     }
 }
