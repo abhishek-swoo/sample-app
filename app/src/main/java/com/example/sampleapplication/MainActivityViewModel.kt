@@ -14,6 +14,8 @@ class MainActivityViewModel : ViewModel() {
     private val _dataListResultUIModel = MutableLiveData<List<ListDataUIModel>>()
     val dataListResultUIModel: LiveData<List<ListDataUIModel>> = _dataListResultUIModel
 
+    val dataSingleResultUIModel = MutableLiveData<ListDataUIModel>()
+
     val aRetrofitServices by lazy { RetrofitProvider.instance.services }
 
     fun getData() {
@@ -30,18 +32,46 @@ class MainActivityViewModel : ViewModel() {
     }
 
     fun transformToUIModel(listData: ListDataNwModel?) {
+        var count = 0
         var listUIData = ArrayList<ListDataUIModel>()
         listData?.list?.forEach {
-            if (it.text != null && it.url != null) {
+
+            addAdd(count, listUIData)
+
+            if (it.id != null && it.nbLocality != null && it.title != null && it.parkingDesc != null && it.thumbnailImage != null && it.rent != null) {
                 listUIData.add(
                     ListDataUIModel(
-                        text = it.text,
-                        url = it.url
+                        id = it.id,
+                        nbLocality = it.nbLocality,
+                        thumbnailImage = it.thumbnailImage,
+                        title = it.title,
+                        parkingDesc = it.parkingDesc,
+                        rent = it.rent
                     )
                 )
+                count++
             }
+
         }
         _dataListResultUIModel.postValue(listUIData)
+    }
+
+    private fun addAdd(
+        count: Int,
+        listUIData: ArrayList<ListDataUIModel>
+    ) {
+        if (count % 5 == 0 && count != 0) {
+            listUIData.add(
+                ListDataUIModel(
+                    id = "",
+                    nbLocality = "",
+                    thumbnailImage = "",
+                    title = "",
+                    parkingDesc = "",
+                    rent = -1
+                )
+            )
+        }
     }
 
 }

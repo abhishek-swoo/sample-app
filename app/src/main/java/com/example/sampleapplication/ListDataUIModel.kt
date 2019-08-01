@@ -2,14 +2,23 @@ package com.example.sampleapplication
 
 import com.google.gson.annotations.SerializedName
 
+
 data class ListDataUIModel (
-    val text: String,
-    val url: String
+    val id: String,
+    val title: String,
+    val thumbnailImage: String,
+    val nbLocality: String,
+    val parkingDesc: String,
+    val rent: Long
 )
 
 data class DataNwModel (
-    @SerializedName("first_name") val text: String?,
-    @SerializedName("last_name") val url: String?
+    @SerializedName("id") val id: String?,
+    @SerializedName("title") val title: String?,
+    @SerializedName("thumbnailImage") val thumbnailImage: String?,
+    @SerializedName("nbLocality") val nbLocality: String?,
+    @SerializedName("parkingDesc") val parkingDesc: String?,
+    @SerializedName("rent") val rent: Long?
 )
 
 data class ListDataNwModel(

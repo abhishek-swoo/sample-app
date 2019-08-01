@@ -7,7 +7,7 @@ import retrofit2.http.GET
 
 interface RetrofitServices {
 
-    @GET("/api/users?page=2")
+    @GET("/getProperties")
     fun getDataList(): Call<ListDataNwModel>
 
 }

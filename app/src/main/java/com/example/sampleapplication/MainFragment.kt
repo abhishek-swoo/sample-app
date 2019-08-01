@@ -11,12 +11,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sampleapplication.Services.OnItemClickListener
 import com.example.sampleapplication.databinding.FragmentMainBinding
-import com.example.sampleapplication.db.AppDatabase
-import com.example.sampleapplication.db.MyData
-import kotlinx.coroutines.experimental.launch
 
-class MainFragment: Fragment() {
+class MainFragment: Fragment(), OnItemClickListener {
 
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var binding: FragmentMainBinding
@@ -28,40 +26,35 @@ class MainFragment: Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val dataDao = AppDatabase.get(context!!.applicationContext).myDataDao()
         viewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
 
         viewModel.dataListResultUIModel.observe(this, Observer { listData ->
 
             binding.listRv.layoutManager = LinearLayoutManager(context) as RecyclerView.LayoutManager?
-            binding.listRv.adapter = DataListAdapter()
+            binding.listRv.adapter = DataListAdapter(this)
             val adapter = binding.listRv.adapter as DataListAdapter
             listData.let {
                 adapter.updateData(listData)
-            }
-
-            launch {
-                dataDao.insertAll(transformToDBData(listData))
-                Log.d("MainActivityTest", "Entry: " + dataDao.findData(2))
+                Log.d("MainFragment","data: " + listData.toString())
             }
         })
 
         viewModel.getData()
     }
 
-    fun transformToDBData(data: List<ListDataUIModel>): List<MyData> {
-        val myData = ArrayList<MyData>()
-        data.forEach {
-            myData.add(
-                MyData(
-                    uId = 0,
-                    text = it.text,
-                    data = it.url
-                )
-            )
-        }
-        return myData
+    override fun onClickListener(data: ListDataUIModel) {
+
+        val fragment =
+            activity?.supportFragmentManager?.findFragmentByTag(DetailFragment::class.java.simpleName)
+                ?: DetailFragment.newInstance(data)
+        val transaction = activity?.supportFragmentManager?.beginTransaction()?.
+            addToBackStack(DetailFragment::class.java.simpleName)
+            transaction?.replace(R.id.main_container, fragment, DetailFragment::class.java.simpleName)?.commitAllowingStateLoss()
+
+        viewModel.dataSingleResultUIModel.postValue(data)
+
     }
+
 
     companion object {
         fun newInstance() = MainFragment()
